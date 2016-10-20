@@ -23,6 +23,7 @@ BuildRequires:	zookeeper-client-devel = @ZOOKEEPER_VERSION@
 BuildRequires:	oniguruma-devel >= 5.9
 BuildRequires:	ux-devel = @UX_VERSION@
 BuildRequires:	mecab-devel = @MECAB_VERSION@
+BuildRequires:	opencv-devel >= 2.0
 BuildRequires:	pkgconfig
 BuildRequires:	python >= 2.4
 
@@ -33,9 +34,6 @@ Requires:		msgpack = @MSGPACK_VERSION@
 Requires:		log4cxx = @LOG4CXX_VERSION@
 Requires:		zookeeper-client = @ZOOKEEPER_VERSION@
 Requires:		oniguruma >= 5.9
-Requires:		ux = @UX_VERSION@
-Requires:		mecab = @MECAB_VERSION@
-Requires:		mecab-ipadic = @MECAB_IPADIC_VERSION@
 
 %package devel
 Summary:	Headers and libraries to develop engines and plugins for Jubatus Framework
@@ -45,6 +43,25 @@ Requires:	jubatus-msgpack-rpc-devel = @JUBATUS_MSGPACK_RPC_VERSION@
 Requires:	msgpack-devel = @MSGPACK_VERSION@
 Requires:	log4cxx-devel = @LOG4CXX_VERSION@
 Requires:	oniguruma-devel >= 5.9
+
+%package plugin-ux
+Summary:	UX-trie feature extraction plug-in
+Group:		Development/Libraries
+Requires:	%{name} = %{version}-%{release}
+Requires:	ux = @UX_VERSION@
+
+%package plugin-mecab
+Summary:	MeCab feature extraction plug-in
+Group:		Development/Libraries
+Requires:	%{name} = %{version}-%{release}
+Requires:	mecab = @MECAB_VERSION@
+Requires:	mecab-ipadic = @MECAB_IPADIC_VERSION@
+
+%package plugin-image
+Summary:	Image feature extraction plug-in
+Group:		Development/Libraries
+Requires:	%{name} = %{version}-%{release}
+Requires:	opencv >= 2.0
 
 %package client
 Summary:	Jubatus C++ Client
@@ -67,7 +84,7 @@ This package provides Jubatus C++ client headers.
 %setup -q -n %{name}
 
 %build
-%{__waf} configure --prefix=%{_prefix} --libdir=%{_libdir} --enable-zookeeper --enable-ux --enable-mecab
+%{__waf} configure --prefix=%{_prefix} --libdir=%{_libdir} --enable-zookeeper --enable-ux --enable-mecab --enable-opencv
 %{__waf} build
 
 %install
@@ -83,7 +100,6 @@ find %{buildroot}/%{_libdir} -name "lib*.so*" -exec chmod 755 {} \;
 %doc README.rst LICENSE ChangeLog.rst
 %{_bindir}/juba*
 %{_libdir}/libjuba*.so.*
-%{_libdir}/jubatus/plugin
 %{_datarootdir}/jubatus
 %{_mandir}/man*/*
 %{_mandir}/*/man*/*
@@ -95,6 +111,15 @@ find %{buildroot}/%{_libdir} -name "lib*.so*" -exec chmod 755 {} \;
 %{_includedir}/jubatus
 %exclude %{_includedir}/jubatus/client
 %exclude %{_includedir}/jubatus/client.hpp
+
+%files plugin-ux
+%{_libdir}/jubatus/plugin/libux_splitter.so*
+
+%files plugin-mecab
+%{_libdir}/jubatus/plugin/libmecab_splitter.so*
+
+%files plugin-image
+%{_libdir}/jubatus/plugin/libimage_feature.so*
 
 %files client
 %{_libdir}/pkgconfig/jubatus-client.pc
